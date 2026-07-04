@@ -1,5 +1,6 @@
 package com.lubomirdruga.wordfiller
 
+import com.lubomirdruga.wordfiller.config.WordFillerConfig
 import com.lubomirdruga.wordfiller.provider.TemplateDataProvider
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
@@ -12,10 +13,13 @@ import java.nio.charset.StandardCharsets
 /**
  * Provider for evaluating Velocity templates with data context.
  *
- * @param templateBasePath Base path pattern for classpath templates (default: "/export-word/%s/%s.vm")
+ * Nested template locations are derived from [WordFillerConfig.velocityTemplatePath],
+ * so the config is the single source of truth for template paths.
+ *
+ * @param config Configuration shared with [WordFiller]; pass the same instance to both
  */
 class VelocityDataProvider(
-    private val templateBasePath: String = TEMPLATE_PATH
+    override val config: WordFillerConfig,
 ) : TemplateDataProvider {
     private val velocityEngine: VelocityEngine = VelocityEngine()
 
@@ -41,8 +45,8 @@ class VelocityDataProvider(
         StringWriter().use { writer ->
             if (expression.startsWith("|")) {
                 // expression contains template name
-                val templateName = expression.substring(1, expression.length - 1).trim { it <= ' ' }
-                val resourcePath = templateBasePath.format(template, templateName)
+                val templateName = expression.substring(1, expression.length - 1).trim()
+                val resourcePath = config.velocityTemplatePath(template, templateName)
                 val resource = javaClass.getResourceAsStream(resourcePath)
                     ?: return "$templateName: template not found at $resourcePath"
                 InputStreamReader(resource, StandardCharsets.UTF_8).use { reader ->
@@ -55,9 +59,5 @@ class VelocityDataProvider(
             }
             return writer.toString()
         }
-    }
-
-    companion object {
-        private const val TEMPLATE_PATH = "/export-word/%s/%s.vm"
     }
 }

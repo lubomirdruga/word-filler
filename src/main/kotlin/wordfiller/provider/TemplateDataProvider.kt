@@ -1,9 +1,19 @@
 package com.lubomirdruga.wordfiller.provider
 
+import com.lubomirdruga.wordfiller.config.WordFillerConfig
+
 /**
  * Provider for evaluating template expressions with a data context.
  */
 fun interface TemplateDataProvider {
+
+    /**
+     * The config this provider was created with, or null for providers that do not
+     * resolve templates by path (e.g. simple lambdas). When non-null, WordFiller
+     * requires it to match its own config so both resolve templates under the same root.
+     */
+    val config: WordFillerConfig?
+        get() = null
 
     /**
      * Evaluate a template expression with the given context.

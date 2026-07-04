@@ -26,6 +26,15 @@ class WordFiller(
     private val dataProvider: TemplateDataProvider,
 ) {
 
+    init {
+        val providerConfig = dataProvider.config
+        require(providerConfig == null || providerConfig == config) {
+            "TemplateDataProvider was created with a different WordFillerConfig " +
+                "(templateBasePath=${providerConfig?.templateBasePath}) than WordFiller " +
+                "(templateBasePath=${config.templateBasePath}); pass the same config to both."
+        }
+    }
+
     /**
      * Export a document using a template name from the classpath.
      *
@@ -34,7 +43,7 @@ class WordFiller(
      * @return ByteArray containing the processed Word document
      */
     fun export(template: String, obj: Any?): ByteArray {
-        val templatePath = "/${config.templateBasePath}/$template.docx"
+        val templatePath = config.wordTemplatePath(template)
         javaClass.getResourceAsStream(templatePath).use { inputStream ->
             requireNotNull(inputStream) { "Template not found at: $templatePath" }
             XWPFDocument(inputStream).use { doc ->
@@ -86,6 +95,9 @@ class WordFiller(
             processBodyElements(header.bodyElements, template, obj)
         }
         processBodyElements(doc.bodyElements, template, obj)
+        for (footer in doc.footerList) {
+            processBodyElements(footer.bodyElements, template, obj)
+        }
     }
 
     private fun processBodyElements(bodyElements: List<IBodyElement>, template: String, data: Any?) {
@@ -176,10 +188,10 @@ class WordFiller(
             if (lines.size == 1) {
                 run.setText(newRunText, 0)
             } else {
-                run.setText("", 0)
-                lines.forEach { line ->
-                    run.setText(line)
+                run.setText(lines.first(), 0)
+                for (line in lines.drop(1)) {
                     run.addBreak()
+                    run.setText(line)
                 }
             }
         }
@@ -189,40 +201,49 @@ class WordFiller(
         var i = 0
         while (i < paragraph.runs.size) {
             val run = paragraph.runs[i]
-            val wholeRunText = run.text()
-
-            if (wholeRunText != null && run !is XWPFHyperlinkRun) { // skip already created URLs
-                val hyperLinkMatch = HYPERLINK_PATTERN.find(wholeRunText)
-
-                if (hyperLinkMatch != null) {
-                    val startIdxOfLink = hyperLinkMatch.range.first
-                    val endIdxOfLink = hyperLinkMatch.range.last + 1
-
-                    createRunsWithContentAndLink(paragraph, run, wholeRunText, startIdxOfLink, endIdxOfLink)
-                    paragraph.removeRun(i)
-                    i++
-                }
+            if (run is XWPFHyperlinkRun) { // skip already created URLs
+                i++
+                continue
             }
-            i++
+
+            val wholeRunText = run.text()
+            val hyperLinkMatch = wholeRunText?.let { HYPERLINK_PATTERN.find(it) }
+            if (hyperLinkMatch == null) {
+                i++
+                continue
+            }
+
+            replaceRunWithContentAndLink(paragraph, i, wholeRunText, hyperLinkMatch.range.first, hyperLinkMatch.range.last + 1)
+            // resume at the run holding the text after the link, so further links in it are still found
+            i += if (hyperLinkMatch.range.first > 0) 2 else 1
         }
     }
 
-    private fun createRunsWithContentAndLink(
+    private fun replaceRunWithContentAndLink(
         paragraph: XWPFParagraph,
-        originalRun: XWPFRun,
+        runIndex: Int,
         originalText: String,
         startIdxOfLink: Int,
         endIdxOfLink: Int
     ) {
-        val runBeforeLink = paragraph.createRun()
-        runBeforeLink.setText(originalText.substring(0, startIdxOfLink))
-        copyStylesToNewRun(originalRun, runBeforeLink)
+        val originalRun = paragraph.runs[runIndex]
+        var insertIndex = runIndex + 1
 
-        createHyperlinkRun(paragraph, originalRun, originalText.substring(startIdxOfLink, endIdxOfLink))
+        if (startIdxOfLink > 0) {
+            val runBeforeLink = paragraph.insertNewRun(insertIndex++)
+            runBeforeLink.setText(originalText.substring(0, startIdxOfLink))
+            copyStylesToNewRun(originalRun, runBeforeLink)
+        }
 
-        val runAfterLink = paragraph.createRun()
-        runAfterLink.setText(originalText.substring(endIdxOfLink, originalText.length))
-        copyStylesToNewRun(originalRun, runAfterLink)
+        createHyperlinkRun(paragraph, insertIndex++, originalRun, originalText.substring(startIdxOfLink, endIdxOfLink))
+
+        if (endIdxOfLink < originalText.length) {
+            val runAfterLink = paragraph.insertNewRun(insertIndex)
+            runAfterLink.setText(originalText.substring(endIdxOfLink))
+            copyStylesToNewRun(originalRun, runAfterLink)
+        }
+
+        paragraph.removeRun(runIndex)
     }
 
     private fun copyStylesToNewRun(originalRun: XWPFRun, newRun: XWPFRun) {
@@ -238,19 +259,19 @@ class WordFiller(
         newRun.color = originalRun.color
     }
 
-    private fun createHyperlinkRun(paragraph: XWPFParagraph, originalRun: XWPFRun, link: String) {
-        val hyperlinkRun = paragraph.createHyperlinkRun(link)
+    private fun createHyperlinkRun(paragraph: XWPFParagraph, insertIndex: Int, originalRun: XWPFRun, link: String) {
+        val hyperlinkRun = paragraph.insertNewHyperlinkRun(insertIndex, link)
         hyperlinkRun.setText(link)
 
         copyStylesToNewRun(originalRun, hyperlinkRun)
         hyperlinkRun.underline = UnderlinePatterns.SINGLE
-        hyperlinkRun.color = "0000FF"
-        hyperlinkRun.addBreak()
+        hyperlinkRun.color = HYPERLINK_COLOR
     }
 
     companion object {
         private const val TOKEN_PLACEHOLDER_START = "{"
         private const val TOKEN_PLACEHOLDER_END = "}"
+        private const val HYPERLINK_COLOR = "0000FF"
         private val HYPERLINK_PATTERN = Regex("""http(s)?://\S+""")
     }
 }
