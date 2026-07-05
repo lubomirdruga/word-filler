@@ -339,7 +339,7 @@ providers leave `config` as `null` and skip the check.
 ./gradlew publish         # publishes to build/repo by default; see build.gradle.kts
 ```
 
-The library version is read from the `VERSION` file at the repository root — edit that
+The library version is read from the `VERSION` file at the repository root - edit that
 file to cut a new version.
 
 ## Requirements
