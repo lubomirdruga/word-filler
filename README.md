@@ -16,32 +16,42 @@ template expressions.
 
 ## How It Works
 
-```mermaid
-flowchart LR
-    DOCX[/"Word template (.docx)"/] --> WF
-    DATA[/"data object → $model"/] --> WF
+An export is a top-to-bottom pipeline: a Word template and a data object go in, a
+filled document comes out. Each stage below feeds the next.
 
-    subgraph WF["WordFiller"]
-        direction LR
-        DW["DocumentWalker<br/>headers · body · footers · tables"] --> PR["PlaceholderReplacer<br/>evaluates placeholders"]
-        PR --> HF["HyperlinkFormatter<br/>URLs → clickable links"]
-    end
+<p align="center">
+  <img src="docs/architecture.svg" height="600"
+       alt="Processing flow: WordFiller loads the .docx, DocumentWalker walks the document, PlaceholderReplacer evaluates placeholders through a TemplateDataProvider, HyperlinkFormatter converts URLs, then the document is serialized to a ByteArray">
+</p>
 
-    PR --> TDP["TemplateDataProvider (SPI)"]
-    TDP --> VDP["VelocityDataProvider<br/>Velocity + SecureUberspector"]
-    VDP --> VM[/"nested .vm templates"/]
+1. **Load** — `WordFiller.export` (or `exportFromFile` / `exportFromStream`) reads the
+   `.docx` into an Apache POI `XWPFDocument`. The classpath location comes from
+   `WordFillerConfig`.
+2. **Walk** — `DocumentWalker` traverses the whole document structure — headers, body,
+   footers, and every table (including tables nested in cells) — emitting one paragraph
+   at a time. It is pure traversal and knows nothing about placeholders.
+3. **Replace placeholders** — for each paragraph, `PlaceholderReplacer` scans the runs,
+   stitching back together `{...}` placeholders that Word split across multiple runs (or
+   text nodes) and honouring the `\{`, `\}`, `\\` escapes.
+4. **Evaluate** — each placeholder expression is handed to the pluggable
+   `TemplateDataProvider`. The default `VelocityDataProvider` evaluates it with Apache
+   Velocity against `$model`, resolving `{|name|}` references to nested `.vm`
+   sub-templates. Introspection is sandboxed by `SecureUberspector` unless disabled.
+5. **Render value** — multi-line evaluated values are written back as proper line breaks
+   within the paragraph.
+6. **Linkify** — `HyperlinkFormatter` post-processes each paragraph, turning any
+   plain-text `http(s)://` URL into a styled, clickable hyperlink run while keeping
+   surrounding text, formatting, and trailing sentence punctuation intact.
+7. **Serialize** — once every paragraph is processed, the document is written out and
+   returned as a `ByteArray`.
 
-    CFG["WordFillerConfig<br/>template root"] --> WF
-    CFG --> VDP
+`WordFillerConfig` is the shared source of truth for where templates are loaded from,
+handed to both `WordFiller` and the data provider so Word templates and their nested
+`.vm` files always resolve under the same root.
 
-    WF --> OUT[/"filled document (ByteArray)"/]
-```
-
-`WordFiller` walks the document (headers, body, footers, tables - via `DocumentWalker`),
-replaces `{...}` placeholders with values evaluated by the pluggable
-`TemplateDataProvider` (Velocity by default), converts plain-text URLs into hyperlinks,
-and returns the filled document as a byte array. `WordFillerConfig` is the shared
-source of truth for where templates are loaded from.
+For the component architecture — a full class diagram plus the dependency and threading
+boundaries — see the **Architecture** section of the generated API documentation
+(`docs/module.md`, rendered by Dokka into `build/dokka/html/`).
 
 ## Installation
 

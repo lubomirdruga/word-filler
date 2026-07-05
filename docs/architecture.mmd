@@ -1,0 +1,20 @@
+flowchart TD
+    IN[/"Word template (.docx) + data object → $model"/]
+
+    IN --> LOAD["1 · Load<br/><b>WordFiller.export</b><br/>read .docx into an XWPFDocument"]
+
+    LOAD --> WALK["2 · Walk<br/><b>DocumentWalker</b><br/>headers → body → footers,<br/>recursing into tables &amp; nested tables"]
+
+    WALK -->|"each paragraph"| REPLACE["3 · Replace placeholders<br/><b>PlaceholderReplacer</b><br/>tokenize runs, join {...} split across runs,<br/>apply \{ \} \\ escapes"]
+
+    REPLACE -->|"each {...} expression"| EVAL["4 · Evaluate<br/><b>TemplateDataProvider</b> (Velocity by default)<br/>run expression against $model;<br/>{|name|} pulls in a nested .vm"]
+
+    EVAL -->|"evaluated text"| REPLACE
+
+    REPLACE --> LINES["5 · Render value<br/>multi-line results become line breaks"]
+
+    LINES --> LINKS["6 · Linkify<br/><b>HyperlinkFormatter</b><br/>plain http(s):// URLs → clickable runs,<br/>trailing punctuation kept as text"]
+
+    LINKS -->|"next paragraph"| WALK
+
+    LINKS --> OUT[/"7 · Serialize → filled document (ByteArray)"/]

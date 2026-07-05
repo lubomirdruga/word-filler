@@ -59,7 +59,7 @@ dokka {
         includes.from("docs/module.md")
     }
     pluginsConfiguration.html {
-        customAssets.from("docs/architecture.svg")
+        customAssets.from("docs/architecture.svg", "docs/class-diagram.svg")
     }
 }
 

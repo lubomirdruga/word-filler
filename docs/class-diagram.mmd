@@ -1,0 +1,65 @@
+classDiagram
+    direction LR
+
+    class WordFiller {
+        +WordFiller(config, dataProvider)
+        +export(template, obj) ByteArray
+        +exportFromFile(file, name, obj) ByteArray
+        +exportFromStream(stream, name, obj) ByteArray
+        -processDocument(doc, template, obj)
+        -transformToByteArray(doc) ByteArray
+    }
+
+    class WordFillerConfig {
+        +String templateBasePath
+        +wordTemplatePath(template) String
+        +resolve(relativePath) String
+    }
+
+    class TemplateDataProvider {
+        <<fun interface>>
+        +WordFillerConfig? config
+        +evaluateExpression(expression, template, value) String
+    }
+
+    class VelocityDataProvider {
+        +WordFillerConfig config
+        -Boolean secureIntrospection
+        -VelocityEngine velocityEngine
+        +evaluateExpression(expression, template, value) String
+        -velocityTemplatePath(template, subTemplate) String
+    }
+
+    class DocumentWalker {
+        <<internal>>
+        -onParagraph : (XWPFParagraph)-~Unit
+        +walk(doc)
+    }
+
+    class PlaceholderReplacer {
+        <<internal>>
+        +process(paragraph)
+    }
+
+    class HyperlinkFormatter {
+        <<internal object>>
+        +process(paragraph)
+    }
+
+    class WordFillerException {
+        <<RuntimeException>>
+    }
+
+    WordFiller o-- WordFillerConfig : configured by
+    WordFiller o-- TemplateDataProvider : delegates evaluation to
+    WordFiller ..> DocumentWalker : creates per export
+    WordFiller ..> PlaceholderReplacer : creates per export
+    WordFiller ..> HyperlinkFormatter : uses
+
+    PlaceholderReplacer ..> TemplateDataProvider : evaluates via
+    VelocityDataProvider ..|> TemplateDataProvider : implements
+    VelocityDataProvider o-- WordFillerConfig : resolves .vm under
+
+    WordFiller ..> WordFillerException : throws
+    PlaceholderReplacer ..> WordFillerException : throws
+    VelocityDataProvider ..> WordFillerException : throws
