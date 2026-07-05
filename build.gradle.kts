@@ -1,27 +1,66 @@
 plugins {
     kotlin("jvm") version "2.2.20"
+    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    jacoco
     `maven-publish`
 }
 
 group = "com.lubomirdruga"
-version = "1.0.1-SNAPSHOT"
+// the VERSION file at the repo root is the single source of truth for the library version
+version =
+    providers
+        .fileContents(layout.projectDirectory.file("VERSION"))
+        .asText
+        .get()
+        .trim()
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.apache.poi:poi-ooxml:5.4.0")
+    implementation("org.apache.poi:poi-ooxml:5.5.1")
     implementation("org.apache.velocity:velocity-engine-core:2.4.1")
+    implementation("org.slf4j:slf4j-api:2.0.18")
     testImplementation(kotlin("test"))
+}
+
+detekt {
+    // only the rules explicitly activated in detekt.yml run; ktlint owns formatting
+    config.setFrom("detekt.yml")
+    buildUponDefaultConfig = false
 }
 
 tasks.test {
     useJUnitPlatform()
+    configure<JacocoTaskExtension> {
+        // Velocity's DeprecationAwareExtProperties crashes on classes with fields injected
+        // by coverage instrumentation, so keep the agent away from Velocity classes
+        excludes = listOf("org.apache.velocity.*")
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
+}
+
+dokka {
+    dokkaSourceSets.main {
+        includes.from("docs/module.md")
+    }
+    pluginsConfiguration.html {
+        customAssets.from("docs/architecture.svg")
+    }
 }
 
 // Create sources JAR for Maven publication
@@ -30,10 +69,12 @@ val sourcesJar by tasks.registering(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
-// Create Javadoc JAR for Maven publication
-val javadocJar by tasks.registering(Jar::class) {
+// Create Javadoc JAR for Maven publication from Dokka HTML output
+// (the plain `javadoc` task is a no-op for Kotlin-only sources)
+val dokkaJavadocJar by tasks.registering(Jar::class) {
+    dependsOn(tasks.dokkaGeneratePublicationHtml)
+    from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
 }
 
 publishing {
@@ -41,7 +82,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             artifact(sourcesJar)
-            artifact(javadocJar)
+            artifact(dokkaJavadocJar)
 
             groupId = "com.lubomirdruga"
             artifactId = "word-filler"
@@ -93,4 +134,3 @@ publishing {
         // }
     }
 }
-

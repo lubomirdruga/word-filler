@@ -1,0 +1,30 @@
+# Formatting/style is owned by ktlint (see .editorconfig); detekt only enforces
+# rules ktlint cannot express. Every ruleset is disabled except the ones below.
+
+comments:
+  active: false
+complexity:
+  active: false
+coroutines:
+  active: false
+empty-blocks:
+  active: false
+exceptions:
+  active: false
+naming:
+  active: true
+  # package declaration must match the source directory structure
+  InvalidPackageDeclaration:
+    active: true
+performance:
+  active: false
+potential-bugs:
+  active: false
+
+style:
+  active: true
+  # every if/else branch must be wrapped in braces, even single-line ones
+  BracesOnIfStatements:
+    active: true
+    singleLine: 'always'
+    multiLine: 'always'
