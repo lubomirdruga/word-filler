@@ -8,7 +8,6 @@ plugins {
 }
 
 group = "com.lubomirdruga"
-// the VERSION file at the repo root is the single source of truth for the library version
 version =
     providers
         .fileContents(layout.projectDirectory.file("VERSION"))
@@ -25,6 +24,8 @@ dependencies {
     implementation("org.apache.velocity:velocity-engine-core:2.4.1")
     implementation("org.slf4j:slf4j-api:2.0.18")
     testImplementation(kotlin("test"))
+
+    dokkaPlugin("org.jetbrains.dokka:versioning-plugin:2.2.0")
 }
 
 detekt {
@@ -33,11 +34,14 @@ detekt {
     buildUponDefaultConfig = false
 }
 
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    // SARIF lets CI surface findings in GitHub's code-scanning / PR "Files changed" view
+    reports.sarif.required.set(true)
+}
+
 tasks.test {
     useJUnitPlatform()
     configure<JacocoTaskExtension> {
-        // Velocity's DeprecationAwareExtProperties crashes on classes with fields injected
-        // by coverage instrumentation, so keep the agent away from Velocity classes
         excludes = listOf("org.apache.velocity.*")
     }
 }
@@ -47,6 +51,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
         html.required.set(true)
+        csv.required.set(true) // consumed by the CI coverage-badge job
     }
 }
 
@@ -60,6 +65,19 @@ dokka {
     }
     pluginsConfiguration.html {
         customAssets.from("docs/architecture.svg", "docs/class-diagram.svg")
+    }
+    pluginsConfiguration.versioning {
+        version = project.version.toString()
+
+        // In CI the release workflow restores previously published versions here,
+        // one sub-directory per version; the plugin bundles them under `older/` and
+        // wires up the version dropdown. When the directory is absent or empty (local
+        // builds, Maven javadoc jar, or the very first release) only the current version
+        // is generated - no old-version bloat.
+        val archive = layout.buildDirectory.dir("docs-archive").get()
+        if (archive.asFile.listFiles()?.any { it.isDirectory } == true) {
+            olderVersionsDir = archive
+        }
     }
 }
 
@@ -90,7 +108,9 @@ publishing {
 
             pom {
                 name.set("Word Filler")
-                description.set("A Kotlin library for filling Word document templates with Velocity expressions")
+                description.set(
+                    "A Kotlin library for filling Word document templates with Velocity templates and dynamic data, or with Template Engine of your choice",
+                )
                 url.set("https://github.com/lubomirdruga/word-filler")
 
                 licenses {

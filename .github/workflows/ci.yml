@@ -1,0 +1,133 @@
+name: CI
+
+# Verifies every branch push and every pull request: `./gradlew build` already runs
+# compile + tests + ktlint (main/test/gradle) + detekt + assembles the JAR. Extras:
+# coverage, JUnit results, detekt code-scanning, all surfaced on PRs.
+on:
+  push:
+    branches-ignore:
+      - docs-archive # machine-managed docs store: generated HTML only, nothing to build
+      - badges # machine-managed badge store (see coverage-badge job below)
+  pull_request:
+
+permissions:
+  contents: read
+  checks: write # publish the test-results check run
+  pull-requests: write # coverage + test-result comments on PRs
+  security-events: write # upload detekt SARIF to code scanning
+
+# A newer push to the same ref cancels an in-progress run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 17 is the target; 21 proves forward compatibility.
+        java: ['17', '21']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build, test, ktlint, detekt
+        run: ./gradlew build --no-daemon
+
+      # The reporting steps below run once (on the target JDK) and even when the build
+      # above failed, so a red run still explains itself.
+      - name: Coverage report
+        if: always() && matrix.java == '17'
+        run: ./gradlew jacocoTestReport --no-daemon
+
+      - name: Upload build reports
+        if: always() && matrix.java == '17'
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            build/reports/tests/
+            build/reports/detekt/
+            build/reports/ktlint/
+            build/reports/jacoco/
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: always() && matrix.java == '17'
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: build/test-results/**/*.xml
+
+      - name: Upload detekt findings (code scanning)
+        if: always() && matrix.java == '17'
+        # Forks' read-only token cannot upload SARIF; don't fail the run over it.
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: build/reports/detekt/detekt.sarif
+          category: detekt
+
+      - name: Coverage comment (PRs)
+        if: github.event_name == 'pull_request' && matrix.java == '17'
+        uses: madrapps/jacoco-report@v1.7.1
+        with:
+          paths: build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Coverage report
+
+  # Generates the coverage badge from the JaCoCo CSV and force-pushes it to the
+  # machine-managed `badges` branch, which the README references by raw URL. Only on
+  # main so the badge always reflects the released/default line.
+  coverage-badge:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate coverage report
+        run: ./gradlew jacocoTestReport --no-daemon
+
+      - name: Render coverage badges
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          badges-directory: badges
+          generate-coverage-badge: true
+          generate-branches-badge: true
+
+      - name: Publish badges to the 'badges' branch
+        env:
+          REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: |
+          set -euo pipefail
+          cd badges
+          git init -q
+          git checkout -q -b badges
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore: update coverage badges" || { echo "no badge changes"; exit 0; }
+          git push -f "$REPO_URL" badges

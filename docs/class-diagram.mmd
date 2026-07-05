@@ -32,7 +32,7 @@ classDiagram
 
     class DocumentWalker {
         <<internal>>
-        -onParagraph : (XWPFParagraph)-~Unit
+        -onParagraph : Function1~XWPFParagraph, Unit~
         +walk(doc)
     }
 

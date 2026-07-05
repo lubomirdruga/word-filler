@@ -1,5 +1,12 @@
 # Word Filler
 
+[![CI](https://github.com/lubomirdruga/word-filler/actions/workflows/ci.yml/badge.svg)](https://github.com/lubomirdruga/word-filler/actions/workflows/ci.yml)
+[![Coverage](https://raw.githubusercontent.com/lubomirdruga/word-filler/badges/jacoco.svg)](https://github.com/lubomirdruga/word-filler/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/lubomirdruga/word-filler?sort=semver)](https://github.com/lubomirdruga/word-filler/releases/latest)
+[![API docs](https://img.shields.io/badge/docs-API-blue)](https://lubomirdruga.github.io/word-filler/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.20-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![License](https://img.shields.io/github/license/lubomirdruga/word-filler)](LICENSE)
+
 A Kotlin library for filling Microsoft Word (`.docx`) document templates with dynamic data using Apache Velocity
 template expressions.
 
@@ -13,6 +20,7 @@ template expressions.
 - Automatic detection of `http(s)://` URLs and conversion into styled, clickable hyperlinks
 - Multi-line values rendered as proper line breaks
 - Load Word templates from the classpath, a `File`, or any `InputStream`
+- Bring-your-own template engine via the `TemplateDataProvider` SPI
 
 ## How It Works
 
@@ -66,7 +74,6 @@ dependencies {
 ### Maven
 
 ```xml
-
 <dependency>
     <groupId>com.lubomirdruga</groupId>
     <artifactId>word-filler</artifactId>

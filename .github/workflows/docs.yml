@@ -1,0 +1,101 @@
+name: Publish API docs
+
+# A "version" of the docs maps to a published GitHub Release. Each run restores the
+# previously published versions from the `docs-archive` branch, generates the current
+# version with the Dokka versioning plugin (which bundles the older ones under `older/`
+# and adds the version dropdown), deploys the merged site to Pages, and pushes the
+# updated archive back. Trigger manually via "Run workflow" to (re)publish HEAD's VERSION.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the docs-archive branch (the cross-run version store)
+  pages: write # deploy to GitHub Pages
+  id-token: write # OIDC token for actions/deploy-pages
+
+# Serialize publishes and never cancel a run mid-archive-push.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  ARCHIVE_BRANCH: docs-archive
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve version from VERSION file
+        id: v
+        run: echo "version=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore previously published versions
+        env:
+          REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: |
+          set -euo pipefail
+          dest="build/docs-archive"
+          rm -rf "$dest"; mkdir -p "$dest"
+          if git ls-remote --exit-code --heads "$REPO_URL" "$ARCHIVE_BRANCH" >/dev/null 2>&1; then
+            git clone --quiet --branch "$ARCHIVE_BRANCH" --single-branch --depth 1 "$REPO_URL" "$dest"
+            rm -rf "$dest/.git"
+            echo "Restored archived versions: $(ls "$dest")"
+          else
+            echo "No '$ARCHIVE_BRANCH' branch yet - this is the first publish."
+          fi
+
+      - name: Generate versioned Dokka HTML
+        run: ./gradlew dokkaGeneratePublicationHtml --no-daemon
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/dokka/html
+
+      - name: Update and push docs archive
+        env:
+          REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+          VERSION: ${{ steps.v.outputs.version }}
+        run: |
+          set -euo pipefail
+          dest="build/docs-archive"
+          # Store the freshly built current version WITHOUT its nested `older/` copies,
+          # so the archive never grows quadratically. Prior versions restored above stay.
+          rm -rf "${dest:?}/$VERSION"
+          mkdir -p "$dest/$VERSION"
+          cp -R build/dokka/html/. "$dest/$VERSION/"
+          rm -rf "$dest/$VERSION/older"
+
+          cd "$dest"
+          git init -q
+          git checkout -q -b "$ARCHIVE_BRANCH"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "docs: archive $VERSION"
+          # The archive is a machine-managed snapshot; history is disposable, so force-push.
+          git push -f "$REPO_URL" "$ARCHIVE_BRANCH"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
