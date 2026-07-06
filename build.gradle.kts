@@ -5,6 +5,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     jacoco
     `maven-publish`
+    signing
 }
 
 group = "com.lubomirdruga"
@@ -141,16 +142,18 @@ publishing {
             name = "local"
             url = uri(layout.buildDirectory.dir("repo"))
         }
-        // Uncomment and configure for publishing to Maven Central or other repositories
-        // maven {
-        //     name = "sonatype"
-        //     val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-        //     val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-        //     url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-        //     credentials {
-        //         username = project.findProperty("ossrhUsername")?.toString() ?: System.getenv("OSSRH_USERNAME")
-        //         password = project.findProperty("ossrhPassword")?.toString() ?: System.getenv("OSSRH_PASSWORD")
-        //     }
-        // }
+        // The Central Portal target itself is wired up by the `com.gradleup.nmcp.settings`
+        // plugin in settings.gradle.kts (see nmcpSettings {}) - it registers its own
+        // publishing repository and the `publishAggregationToCentralPortal` task.
     }
+}
+
+signing {
+    val signingKey = System.getenv("SIGNING_KEY")
+    val signingPassword = System.getenv("SIGNING_PASSWORD")
+    isRequired = signingKey != null
+    if (signingKey != null) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+    sign(publishing.publications["mavenJava"])
 }
