@@ -77,7 +77,7 @@ internal object HyperlinkFormatter {
 
         if (startIdxOfLink > 0) {
             val runBeforeLink = paragraph.insertNewRun(insertIndex++)
-            runBeforeLink.setText(originalText.substring(0, startIdxOfLink))
+            setTextRestoringLineBreaks(runBeforeLink, originalText.substring(0, startIdxOfLink))
             copyStylesToNewRun(originalRun, runBeforeLink)
         }
 
@@ -85,11 +85,28 @@ internal object HyperlinkFormatter {
 
         if (endIdxOfLink < originalText.length) {
             val runAfterLink = paragraph.insertNewRun(insertIndex)
-            runAfterLink.setText(originalText.substring(endIdxOfLink))
+            setTextRestoringLineBreaks(runAfterLink, originalText.substring(endIdxOfLink))
             copyStylesToNewRun(originalRun, runAfterLink)
         }
 
         paragraph.removeRun(runIndex)
+    }
+
+    /**
+     * [XWPFRun.text] flattens `<w:br/>` elements into `\n` characters, so text written
+     * back must be split on them again - a raw newline inside a text node is not
+     * rendered as a line break by Word.
+     */
+    private fun setTextRestoringLineBreaks(
+        run: XWPFRun,
+        text: String,
+    ) {
+        val lines = text.lines()
+        run.setText(lines.first(), 0)
+        for (line in lines.drop(1)) {
+            run.addBreak()
+            run.setText(line)
+        }
     }
 
     private fun createHyperlinkRun(

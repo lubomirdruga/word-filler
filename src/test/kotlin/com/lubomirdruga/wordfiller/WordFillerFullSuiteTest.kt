@@ -16,7 +16,8 @@ import kotlin.test.assertTrue
  * End-to-end suite: a real Word document (`src/test/resources/word-filler/full-suite.docx`)
  * containing every supported structure - placeholders in single and split runs, Velocity
  * conditionals and loops, a nested .vm sub-template, escape sequences, multi-line values,
- * URL-to-hyperlink conversion, tables (including a nested table), header, and footer -
+ * URL-to-hyperlink conversion (including a multi-line value that contains a URL), tables
+ * (including a nested table), header, and footer -
  * exported once with one data model and asserted structure by structure.
  *
  * The fixture is a normal .docx: open it in Word to inspect or extend it. After changing
@@ -86,6 +87,23 @@ class WordFillerFullSuiteTest {
     }
 
     @Test
+    fun `keeps line breaks when a multi-line value also contains a URL`() {
+        result().use { doc ->
+            val paragraph = doc.paragraphs[8]
+            assertEquals("Kind regards,\nThe Team\nhttps://example.com/contact", paragraph.text)
+
+            val linkRun = paragraph.runs.filterIsInstance<XWPFHyperlinkRun>().single()
+            assertEquals("https://example.com/contact", linkRun.text())
+            assertEquals("https://example.com/contact", linkRun.getHyperlink(doc).url)
+
+            // linkification must keep the breaks as real <w:br/> elements, not raw '\n'
+            // inside a text node - Word does not render those as line breaks
+            assertEquals(2, paragraph.runs.sumOf { it.ctr.sizeOfBrArray() })
+            assertTrue(paragraph.runs.flatMap { it.ctr.tList }.none { it.stringValue.contains("\n") })
+        }
+    }
+
+    @Test
     fun `fills outer and nested table cells`() {
         result().use { doc ->
             val outer = doc.tables[0]
@@ -142,6 +160,7 @@ class WordFillerFullSuiteTest {
                 "skills" to listOf("Kotlin", "Java", "SQL"),
                 "address" to "42 Main Street\n811 01 Bratislava",
                 "website" to "https://example.com/docs",
+                "signature" to "Kind regards,\nThe Team\nhttps://example.com/contact",
             )
 
         /** The fixture is exported once from the classpath; every test asserts on the same output. */
@@ -163,6 +182,7 @@ class WordFillerFullSuiteTest {
                 doc.addParagraph($$"{$model.address}")
                 doc.addParagraph($$"Docs at {$model.website}.")
                 doc.addParagraph("No placeholders here.")
+                doc.addParagraph($$"{$model.signature}")
 
                 // table with a placeholder cell and a nested table
                 val table = doc.createTable(2, 2)

@@ -194,6 +194,26 @@ class WordFillerTest {
     }
 
     @Test
+    fun `restores line breaks when a multi-line value also contains a URL`() {
+        val multiLineProvider = TemplateDataProvider { _, _, _ -> "Kind regards,\nThe team\nhttps://example.com" }
+        val filler = WordFiller(WordFillerConfig(), multiLineProvider)
+        val template = buildDocument { addParagraph("{anything}") }
+
+        process(template, data = null, filler = filler).use { doc ->
+            val paragraph = doc.paragraphs[0]
+            assertEquals("Kind regards,\nThe team\nhttps://example.com", paragraph.text)
+
+            val linkRun = paragraph.runs.filterIsInstance<XWPFHyperlinkRun>().single()
+            assertEquals("https://example.com", linkRun.text())
+
+            // the newlines must survive linkification as real <w:br/> elements, not as
+            // raw '\n' inside a text node - Word does not render those as line breaks
+            assertEquals(2, paragraph.runs.sumOf { it.ctr.sizeOfBrArray() })
+            assertTrue(paragraph.runs.flatMap { it.ctr.tList }.none { it.stringValue.contains("\n") })
+        }
+    }
+
+    @Test
     fun `does not create hyperlink for plain text`() {
         val template = buildDocument { addParagraph("Just some plain text") }
 
