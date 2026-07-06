@@ -353,7 +353,10 @@ providers leave `config` as `null` and skip the check.
 ./gradlew ktlintFormat    # auto-fix code style violations
 ./gradlew detekt          # static analysis (rules ktlint cannot express, see detekt.yml)
 ./gradlew publishToMavenLocal
-./gradlew publish         # publishes to build/repo by default; see build.gradle.kts
+./gradlew publish                            # publishes to build/repo by default; see build.gradle.kts
+./gradlew publishAggregationToCentralPortal   # signs and publishes to Maven Central; needs
+                                              # SIGNING_KEY/SIGNING_PASSWORD/CENTRAL_USERNAME/
+                                              # CENTRAL_PASSWORD env vars (see release.yml)
 ```
 
 The library version is read from the `VERSION` file at the repository root - edit that
