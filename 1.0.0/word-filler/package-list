@@ -1,0 +1,27 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:com.lubomirdruga.wordfiller.provider////PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/index.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/TemplateDataProvider///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-template-data-provider/index.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/TemplateDataProvider/config/#/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-template-data-provider/config.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/TemplateDataProvider/evaluateExpression/#kotlin.String#kotlin.String#kotlin.Any?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-template-data-provider/evaluate-expression.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/VelocityDataProvider.Companion///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/-companion/index.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/VelocityDataProvider///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/index.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/VelocityDataProvider/VelocityDataProvider/#com.lubomirdruga.wordfiller.WordFillerConfig#kotlin.Boolean/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/-velocity-data-provider.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/VelocityDataProvider/config/#/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/config.html
+$dokka.location:com.lubomirdruga.wordfiller.provider/VelocityDataProvider/evaluateExpression/#kotlin.String#kotlin.String#kotlin.Any?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/evaluate-expression.html
+$dokka.location:com.lubomirdruga.wordfiller////PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/index.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller.Companion///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/-companion/index.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/index.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller/WordFiller/#com.lubomirdruga.wordfiller.WordFillerConfig#com.lubomirdruga.wordfiller.provider.TemplateDataProvider/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/-word-filler.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller/export/#kotlin.String#kotlin.Any?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/export.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller/exportFromFile/#java.io.File#kotlin.String#kotlin.Any?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/export-from-file.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFiller/exportFromStream/#java.io.InputStream#kotlin.String#kotlin.Any?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler/export-from-stream.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerConfig///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-config/index.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerConfig/WordFillerConfig/#kotlin.String/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-config/-word-filler-config.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerConfig/resolve/#kotlin.String/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-config/resolve.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerConfig/templateBasePath/#/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-config/template-base-path.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerConfig/wordTemplatePath/#kotlin.String/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-config/word-template-path.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerException///PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-exception/index.html
+$dokka.location:com.lubomirdruga.wordfiller/WordFillerException/WordFillerException/#kotlin.String#kotlin.Throwable?/PointingToDeclaration/word-filler/com.lubomirdruga.wordfiller/-word-filler-exception/-word-filler-exception.html
+com.lubomirdruga.wordfiller
+com.lubomirdruga.wordfiller.provider

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>word-filler</title>
+    <link href="images/logo-icon.svg" rel="icon" type="image/svg">
+        <script>var pathToRoot = "";</script>
+    <script>document.documentElement.classList.replace("no-js", "js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+      if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      } else {
+        const savedDarkMode = JSON.parse(storage)
+        if (savedDarkMode === true) {
+          document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+      }
+    </script>
+<script type="text/javascript" src="scripts/sourceset_dependencies.js" async="async"></script>
+<link href="styles/style.css" rel="Stylesheet">
+<link href="styles/main.css" rel="Stylesheet">
+<link href="styles/prism.css" rel="Stylesheet">
+<link href="styles/logo-styles.css" rel="Stylesheet">
+<link href="ui-kit/ui-kit.min.css" rel="Stylesheet">
+<script type="text/javascript" src="scripts/safe-local-storage_blocking.js"></script>
+<script type="text/javascript" src="scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="ui-kit/ui-kit.min.js" defer="defer"></script>
+<link href="styles/multimodule.css" rel="Stylesheet">
+<link href="images/architecture.svg">
+<link href="images/class-diagram.svg">
+</head>
+<body>
+<div class="root">
+    <header class="navigation theme-dark" id="navigation-wrapper" role="banner">
+            <a class="library-name--link" href="index.html" tabindex="1">
+                    word-filler
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+<dokka-template-command data="{&quot;@class&quot;:&quot;org.jetbrains.dokka.base.templating.ReplaceVersionsCommand&quot;,&quot;location&quot;:&quot;index.html&quot;}">1.0.0</dokka-template-command>        </div>
+        <div class="navigation-controls">
+        <ul class="filter-section filter-section_loading" id="filter-section" aria-label="Target filter">
+                <button class="platform-tag platform-selector jvm-like" data-active="" aria-pressed="true"
+                        data-filter=":/main">jvm</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox" aria-label="Target filter">
+                    <div class="dropdown--header"><span>Target filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close target filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option jvm-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":/main"
+                                       data-filter=":/main"/>
+                                <span class="checkbox--icon"></span>
+                                jvm
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </ul>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
+        </div>
+    </header>
+    <div id="container">
+        <nav id="leftColumn" class="sidebar" data-item-type="SECTION" data-item-config='{"defaultSize": 280, "minSize": 200, "maxSize": 400}'>
+            <a class="toc--skip-link" href="#main">Skip to content</a>
+            <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                    data-role="dropdown-listbox" aria-label="Table of contents">
+                    <div class="dropdown--header">
+                            <span>
+                                    word-filler
+                            </span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                    <div class="sidebar--inner" id="sideMenu"></div>
+                </ul>
+                <div class="dropdown--overlay"></div>
+            </div>
+        </nav>
+        <div id="resizer" class="resizer" data-item-type="BAR"></div>
+        <div id="main" data-item-type="SECTION" role="main">
+<div class="main-content" id="content" pageIds="word-filler::////PointingToDeclaration//-251573632">
+  <div class="breadcrumbs"></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>word-filler</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":/main"><p class="paragraph">A Kotlin library for filling Microsoft Word (<code class="lang-kotlin">.docx</code>) templates with dynamic data using Apache Velocity expressions.</p><p class="paragraph">In the Word document, placeholders are written in curly braces and evaluated against a data object bound as <code class="lang-kotlin">$model</code>:</p><div class="sample-container"><pre><code class="block lang-text" theme="idea">Hello {$model.name}!<br>Your job title is: {$model.jobTitle}</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><p class="paragraph">Complex fragments can live in nested Velocity files referenced as <code class="lang-kotlin">{|fragment_name|}</code>. Literal braces are written as <code class="lang-kotlin">\{</code> and <code class="lang-kotlin">\}</code>.</p><h2 class="">Architecture</h2><p class="paragraph">An export is a top-to-bottom pipeline: a Word template and a data object go in, a filled document comes out. <code class="lang-kotlin">WordFiller</code> loads the <code class="lang-kotlin">.docx</code>, <code class="lang-kotlin">DocumentWalker</code> traverses it, <code class="lang-kotlin">PlaceholderReplacer</code> evaluates <code class="lang-kotlin">{...}</code> placeholders through a <code class="lang-kotlin">TemplateDataProvider</code>, and <code class="lang-kotlin">HyperlinkFormatter</code> converts plain-text URLs into clickable links before the document is serialized back to a <code class="lang-kotlin">ByteArray</code>.</p><p align="center">
+  <img src="images/architecture.svg"
+       alt="Processing flow: WordFiller walks the document, PlaceholderReplacer evaluates placeholders through TemplateDataProvider, HyperlinkFormatter converts URLs">
+</p><p class="paragraph">The public surface is small — <code class="lang-kotlin">WordFiller</code>, <code class="lang-kotlin">WordFillerConfig</code>, and the <code class="lang-kotlin">TemplateDataProvider</code> interface (with <code class="lang-kotlin">VelocityDataProvider</code> as the default). The traversal and rewriting logic (<code class="lang-kotlin">DocumentWalker</code>, <code class="lang-kotlin">PlaceholderReplacer</code>, <code class="lang-kotlin">HyperlinkFormatter</code>) is <code class="lang-kotlin">internal</code> and orchestrated by <code class="lang-kotlin">WordFiller</code> per export.</p><p class="paragraph"><img alt="Class diagram: WordFiller depends on WordFillerConfig and TemplateDataProvider and creates DocumentWalker, PlaceholderReplacer and HyperlinkFormatter per export; VelocityDataProvider implements TemplateDataProvider" src="images/class-diagram.svg"></p><p class="paragraph"><strong>Key dependencies and boundaries</strong></p><ul><li><p class="paragraph"><code class="lang-kotlin">WordFillerConfig</code> is passed to both <code class="lang-kotlin">WordFiller</code> and the provider; <code class="lang-kotlin">WordFiller</code>'s   constructor rejects a provider built with a different config (<code class="lang-kotlin">IllegalArgumentException</code>),   so <code class="lang-kotlin">.docx</code> and <code class="lang-kotlin">.vm</code> templates can never resolve under mismatched roots.</p></li><li><p class="paragraph"><code class="lang-kotlin">WordFiller</code> owns the per-export objects: it constructs a fresh <code class="lang-kotlin">PlaceholderReplacer</code>   (bound to one template + data object) and wires <code class="lang-kotlin">DocumentWalker</code> to call the replacer   then <code class="lang-kotlin">HyperlinkFormatter</code> on every paragraph. This is why one <code class="lang-kotlin">WordFiller</code> instance is   safe to share across threads — mutable state lives in the per-export objects, not the   service.</p></li><li><p class="paragraph"><code class="lang-kotlin">TemplateDataProvider</code> is the only extension point. Swap <code class="lang-kotlin">VelocityDataProvider</code> for   your own engine (or a lambda) without touching traversal or hyperlink logic.</p></li><li><p class="paragraph">External libraries: Apache POI backs the <code class="lang-kotlin">XWPF*</code> document model used by the walker,   replacer, and formatter; Apache Velocity (with <code class="lang-kotlin">SecureUberspector</code>) backs the default   provider; SLF4J is used for debug logging throughout.</p></li></ul><h2 class="">Quick start</h2><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">val config = WordFillerConfig() // templates under /word-filler/ on the classpath<br>val filler = WordFiller(config, VelocityDataProvider(config))<br><br>val output: ByteArray = filler.export(&quot;my-template&quot;, Person(&quot;John Doe&quot;, &quot;Engineer&quot;))<br>File(&quot;output.docx&quot;).writeBytes(output)</code></pre><span class="copy-tooltip"><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div><span class="copy-icon"></span></span></div><h2 class="">Behavior highlights</h2><ul><li><p class="paragraph">Placeholders work in body paragraphs, tables, headers, and footers - even when Word   splits them across multiple runs.</p></li><li><p class="paragraph">Plain-text <code class="lang-kotlin">http(s)://</code> URLs are converted into clickable, styled hyperlinks.</p></li><li><p class="paragraph">Multi-line values render as line breaks.</p></li><li><p class="paragraph">Errors fail fast with <a href="word-filler/com.lubomirdruga.wordfiller/-word-filler-exception/index.html">com.lubomirdruga.wordfiller.WordFillerException</a> instead of   silently producing a wrong document.</p></li><li><p class="paragraph">Templates run with secure introspection by default: reflection escapes such as   <code class="lang-kotlin">$model.class.classLoader</code> are blocked.</p></li><li><p class="paragraph">A single <code class="lang-kotlin">WordFiller</code> + <code class="lang-kotlin">VelocityDataProvider</code> pair is safe for concurrent exports.</p></li></ul><p class="paragraph">See the <a href="https://github.com/lubomirdruga/word-filler">project README</a> for the full guide: template directory layout, escaping rules, security notes, and error handling.</p></div></div>
+  </div>
+  <h2 class="">Packages</h2>
+  <div class="table"><a data-name="1693695548%2FPackages%2F-251573632" anchor-label="com.lubomirdruga.wordfiller" id="1693695548%2FPackages%2F-251573632" data-filterable-set=":/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":/main" data-filterable-set=":/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="word-filler/com.lubomirdruga.wordfiller/index.html">com.lubomirdruga.wordfiller</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1693695548%2FPackages%2F-251573632"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="1693695548%2FPackages%2F-251573632" anchor-label="com.lubomirdruga.wordfiller" id="1693695548%2FPackages%2F-251573632" data-filterable-set=":/main"></a>
+            <p class="paragraph">Core API: the <a href="word-filler/com.lubomirdruga.wordfiller/-word-filler/index.html">com.lubomirdruga.wordfiller.WordFiller</a> export service, <a href="word-filler/com.lubomirdruga.wordfiller/-word-filler-config/index.html">com.lubomirdruga.wordfiller.WordFillerConfig</a> as the single source of truth for where templates are loaded from, and <a href="word-filler/com.lubomirdruga.wordfiller/-word-filler-exception/index.html">com.lubomirdruga.wordfiller.WordFillerException</a> thrown on template or content errors.</p>
+          </span></div>
+      </div>
+    </div>
+<a data-name="150198311%2FPackages%2F-251573632" anchor-label="com.lubomirdruga.wordfiller.provider" id="150198311%2FPackages%2F-251573632" data-filterable-set=":/main"></a>
+    <div class="table-row table-row_platform-tagged" data-filterable-current=":/main" data-filterable-set=":/main">
+      <div>
+        <div class="main-subrow ">
+          <div class=""><span class="inline-flex">
+              <div><a href="word-filler/com.lubomirdruga.wordfiller.provider/index.html">com.lubomirdruga.wordfiller.provider</a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="150198311%2FPackages%2F-251573632"></span>
+                <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+              </span></span></div>
+          <div class="pull-right platform-tags--wrapper">
+            <div class="platform-tags no-gutters">
+              <div class="platform-tag jvm-like">jvm</div>
+            </div>
+          </div>
+        </div>
+        <div><span class="brief-comment"><a data-name="150198311%2FPackages%2F-251573632" anchor-label="com.lubomirdruga.wordfiller.provider" id="150198311%2FPackages%2F-251573632" data-filterable-set=":/main"></a>
+            <p class="paragraph">Template engines: the <a href="word-filler/com.lubomirdruga.wordfiller.provider/-template-data-provider/index.html">com.lubomirdruga.wordfiller.provider.TemplateDataProvider</a> SPI for plugging in a custom expression engine, and the default Velocity-backed <a href="word-filler/com.lubomirdruga.wordfiller.provider/-velocity-data-provider/index.html">com.lubomirdruga.wordfiller.provider.VelocityDataProvider</a>.</p>
+          </span></div>
+      </div>
+    </div>
+  </div>
+</div>
+    <div class="footer">
+        <div class="footer--container">
+            <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+            <div class="footer--content">
+                <div>
+                    <span>Generated by </span>
+                    <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                        Dokka
+                    </a>
+                    <div>© 2026 Copyright</div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
