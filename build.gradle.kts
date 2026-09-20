@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.2.20"
+    kotlin("jvm") version "2.4.20"
     id("org.jetbrains.dokka") version "2.2.0"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
@@ -23,7 +23,7 @@ repositories {
 dependencies {
     implementation("org.apache.poi:poi-ooxml:5.5.1")
     implementation("org.apache.velocity:velocity-engine-core:2.4.1")
-    implementation("org.slf4j:slf4j-api:2.0.18")
+    implementation("org.slf4j:slf4j-api:2.0.19")
     testImplementation(kotlin("test"))
 
     dokkaPlugin("org.jetbrains.dokka:versioning-plugin:2.2.0")
